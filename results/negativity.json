@@ -1,0 +1,41 @@
+{
+ "sample": "exploratory",
+ "dictionary": "VADER (|valence| >= 1), negation window 3",
+ "tests": 2050,
+ "headlines": 8986,
+ "mean_words": 14.8,
+ "share_headlines_with_negative_word": 0.426,
+ "share_headlines_with_positive_word": 0.513,
+ "neg_share": {
+  "beta_standardized": 0.0176,
+  "se": 0.0055,
+  "ci95": [
+   0.0068,
+   0.0284
+  ]
+ },
+ "pos_share": {
+  "beta_standardized": -0.0133,
+  "se": 0.0056,
+  "ci95": [
+   -0.0242,
+   -0.0023
+  ]
+ },
+ "words": {
+  "beta_standardized": 0.0365,
+  "se": 0.0054,
+  "ci95": [
+   0.0258,
+   0.0471
+  ]
+ },
+ "one_more_negative_word_ctr_change_pct": 2.27,
+ "one_more_positive_word_ctr_change_pct": -1.5,
+ "robertson_2023": {
+  "negative_beta": 0.015,
+  "positive_beta": -0.008,
+  "one_more_negative_word_pct": 2.3,
+  "one_more_positive_word_pct": -1.0
+ }
+}

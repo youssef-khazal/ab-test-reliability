@@ -1,0 +1,69 @@
+{
+ "phi": 1.799,
+ "simulated_tests": 40000,
+ "looks": 20,
+ "aa_world": {
+  "ahead": {
+   "share_shipped": 0.4838,
+   "shipped_but_worse": 0.0,
+   "avg_true_lift_per_test_pct": 0.0,
+   "avg_share_of_viewers_used": 1.0
+  },
+  "fixed": {
+   "share_shipped": 0.0773,
+   "shipped_but_worse": 0.0,
+   "avg_true_lift_per_test_pct": 0.0,
+   "avg_share_of_viewers_used": 1.0
+  },
+  "peeking": {
+   "share_shipped": 0.2238,
+   "shipped_but_worse": 0.0,
+   "avg_true_lift_per_test_pct": 0.0,
+   "avg_share_of_viewers_used": 0.86
+  },
+  "fixed_phi": {
+   "share_shipped": 0.0272,
+   "shipped_but_worse": 0.0,
+   "avg_true_lift_per_test_pct": 0.0,
+   "avg_share_of_viewers_used": 1.0
+  },
+  "msprt": {
+   "share_shipped": 0.0,
+   "shipped_but_worse": 0.0,
+   "avg_true_lift_per_test_pct": 0.0,
+   "avg_share_of_viewers_used": 1.0
+  }
+ },
+ "realistic_world": {
+  "ahead": {
+   "share_shipped": 0.4893,
+   "shipped_but_worse": 0.3299,
+   "avg_true_lift_per_test_pct": 6.415,
+   "avg_share_of_viewers_used": 1.0
+  },
+  "fixed": {
+   "share_shipped": 0.1309,
+   "shipped_but_worse": 0.165,
+   "avg_true_lift_per_test_pct": 4.697,
+   "avg_share_of_viewers_used": 1.0
+  },
+  "peeking": {
+   "share_shipped": 0.2632,
+   "shipped_but_worse": 0.2732,
+   "avg_true_lift_per_test_pct": 5.414,
+   "avg_share_of_viewers_used": 0.834
+  },
+  "fixed_phi": {
+   "share_shipped": 0.0713,
+   "shipped_but_worse": 0.0922,
+   "avg_true_lift_per_test_pct": 3.772,
+   "avg_share_of_viewers_used": 1.0
+  },
+  "msprt": {
+   "share_shipped": 0.0063,
+   "shipped_but_worse": 0.0,
+   "avg_true_lift_per_test_pct": 0.631,
+   "avg_share_of_viewers_used": 0.998
+  }
+ }
+}

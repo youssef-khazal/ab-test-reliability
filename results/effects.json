@@ -1,0 +1,75 @@
+{
+ "sample": "exploratory",
+ "tests_kept": 3805,
+ "aa": {
+  "pairs": 3757,
+  "tests": 446,
+  "share_significant_5pct": 0.132,
+  "share_significant_5pct_tests_weighted": 0.1285,
+  "noise_inflation_phi": 1.799,
+  "phi_ci95": [
+   1.626,
+   1.987
+  ]
+ },
+ "pairs": 67180,
+ "tests_with_two_or_more_versions": 3480,
+ "median_noise_se_binomial": 0.2408,
+ "G_binomial": {
+  "sd": 0.3259,
+  "median_abs": 0.15,
+  "p90_abs": 0.56,
+  "share_abs_below_1pct": 0.02,
+  "share_abs_below_5pct": 0.1739,
+  "share_abs_above_20pct": 0.4269,
+  "tau_moments": 0.3735
+ },
+ "G_measured": {
+  "sd": 0.2417,
+  "median_abs": 0.07,
+  "p90_abs": 0.47,
+  "share_abs_below_1pct": 0.0387,
+  "share_abs_below_5pct": 0.3303,
+  "share_abs_above_20pct": 0.2028,
+  "tau_moments": 0.2767
+ },
+ "decisions": {
+  "binomial": {
+   "share_significant": 0.2324,
+   "significant_but_wrong_direction": 0.0343,
+   "significant_but_true_lift_below_1pct": 0.0049,
+   "median_exaggeration_when_significant": 1.388,
+   "pick_higher_always_wrong_direction": 0.2566
+  },
+  "measured": {
+   "share_significant": 0.2288,
+   "significant_but_wrong_direction": 0.1862,
+   "significant_but_true_lift_below_1pct": 0.0247,
+   "median_exaggeration_when_significant": 3.801,
+   "pick_higher_always_wrong_direction": 0.3743
+  }
+ },
+ "upworthy_winners": {
+  "tests": 744,
+  "binomial": {
+   "mean_prob_truly_better_than_runner_up": 0.6249,
+   "share_below_80pct": 0.7755
+  },
+  "measured": {
+   "mean_prob_truly_better_than_runner_up": 0.5536,
+   "share_below_80pct": 0.9664
+  }
+ },
+ "median_ctr": 0.01156,
+ "median_views_per_version": 3156,
+ "views_per_version_for_80pct_power": {
+  "2pct_binomial": 3461900,
+  "2pct_measured": 6228000,
+  "5pct_binomial": 570300,
+  "5pct_measured": 1026000,
+  "10pct_binomial": 149400,
+  "10pct_measured": 268900,
+  "20pct_binomial": 40800,
+  "20pct_measured": 73500
+ }
+}

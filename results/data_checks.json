@@ -1,0 +1,32 @@
+{
+ "sample": "exploratory",
+ "packages": 22666,
+ "tests": 4873,
+ "impressions": 81024151,
+ "clicks": 1231208,
+ "first_package": "2013-01-26 20:10:36",
+ "last_package": "2015-04-29 22:46:43.618000",
+ "packages_per_test": {
+  "2": 127,
+  "3": 182,
+  "4": 2516,
+  "5": 928,
+  "6": 865,
+  "7": 134,
+  "8": 86,
+  "9": 18,
+  "10": 7,
+  "11": 8,
+  "12": 1,
+  "14": 1
+ },
+ "median_impressions_per_test": 14431.0,
+ "median_ctr": 0.01307227856263556,
+ "tests_with_a_declared_winner": 1151,
+ "tests_with_several_winners": 1,
+ "srm_alpha": 0.001,
+ "srm_rate_flagged_window": 0.7,
+ "srm_rate_outside_window": 0.0047,
+ "tests_in_flagged_window": 1050,
+ "tests_kept": 3805
+}
