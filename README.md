@@ -45,4 +45,5 @@ python scripts/run_plan.py confirmatory # the frozen plan on the reserved sample
 | `src/abtr/` | loading, empirical Bayes (NPMLE), sentiment counts |
 | `scripts/` | one script per question |
 | `results/`, `figures/` | outputs (exploratory); reserved samples in subfolders |
+| `demo/` | "Is my winner real?": a calculator built on these results (static page; `scripts/export_prior.py`, `scripts/build_demo.py`) |
 | `docs/analysis_plan.md`, `docs/deviations.md` | the pre-registered plan and the one deviation |
