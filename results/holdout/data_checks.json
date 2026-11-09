@@ -1,0 +1,33 @@
+{
+ "sample": "holdout",
+ "packages": 22600,
+ "tests": 4871,
+ "impressions": 80719569,
+ "clicks": 1209782,
+ "first_package": "2013-01-24 20:05:04",
+ "last_package": "2015-04-29 21:18:41.804000",
+ "packages_per_test": {
+  "2": 119,
+  "3": 197,
+  "4": 2541,
+  "5": 931,
+  "6": 826,
+  "7": 129,
+  "8": 91,
+  "9": 19,
+  "10": 13,
+  "11": 2,
+  "12": 1,
+  "13": 1,
+  "17": 1
+ },
+ "median_impressions_per_test": 14317.0,
+ "median_ctr": 0.012813421828908555,
+ "tests_with_a_declared_winner": 1117,
+ "tests_with_several_winners": 1,
+ "srm_alpha": 0.001,
+ "srm_rate_flagged_window": 0.6799,
+ "srm_rate_outside_window": 0.0024,
+ "tests_in_flagged_window": 1059,
+ "tests_kept": 3803
+}
