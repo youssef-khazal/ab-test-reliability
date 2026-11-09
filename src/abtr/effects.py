@@ -17,6 +17,21 @@ import pandas as pd
 from scipy.stats import norm
 
 
+# The fields that describe what a package is. Two packages of a test are the same version only when all
+# six are equal (docs/deviations.md, deviation 2: share text and square turned out to change clicks).
+VERSION_FIELDS = ["headline", "image_id", "excerpt", "lede", "share_text", "square"]
+# One test has two identical packages with 29 and 350 clicks on about 2,000 views each (a 12-fold gap
+# that no noise model produces); it is left out of the noise estimate, which is also reported with it.
+ANOMALOUS_AA_TESTS = {"5535537b646339001c260000"}
+
+
+def versions(con) -> pd.DataFrame:
+    """One row per distinct version of each test (identical packages merged), with views n and clicks c."""
+    return con.execute(f"""select test_id, {", ".join(VERSION_FIELDS)}, sum(impressions) n, sum(clicks) c,
+                               bool_or(winner) w
+                        from packages group by all order by all""").fetchdf()
+
+
 def package_table(con, kept_tests: pd.Series | None = None) -> pd.DataFrame:
     df = con.execute("""select test_id, impressions as n, clicks as c from packages where clicks > 0""").fetchdf()
     if kept_tests is not None:
@@ -97,15 +112,18 @@ def posterior_positive(d: np.ndarray, se: np.ndarray, grid: np.ndarray, w: np.nd
 
 
 def aa_pairs(con) -> pd.DataFrame:
-    """Pairs of packages in the same test with the same headline, image AND excerpt: what viewers saw
-    before clicking was identical (share text and square appear only after the click, per the archive's
-    paper), so any difference is noise: an accidental A/A test. Outside the flagged window."""
+    """Pairs of packages in the same test that are identical in every recorded field (headline, image,
+    excerpt, lede, share text, square): any difference in clicks is noise, an accidental A/A test.
+    Outside the flagged window."""
     return con.execute("""
         select a.test_id, a.impressions na, a.clicks ca, b.impressions nb, b.clicks cb
         from packages a join packages b
           on a.test_id = b.test_id and a.headline = b.headline
          and coalesce(a.image_id, '') = coalesce(b.image_id, '')
          and coalesce(a.excerpt, '') = coalesce(b.excerpt, '')
+         and coalesce(a.lede, '') = coalesce(b.lede, '')
+         and coalesce(a.share_text, '') = coalesce(b.share_text, '')
+         and coalesce(a.square, '') = coalesce(b.square, '')
          and (a.created_at, a.impressions, a.clicks) < (b.created_at, b.impressions, b.clicks)
         join tests t on t.test_id = a.test_id
         where not t.in_flagged_window and a.clicks > 0 and b.clicks > 0""").fetchdf()

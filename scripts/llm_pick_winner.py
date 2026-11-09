@@ -4,10 +4,10 @@
     python scripts/llm_pick_winner.py --scores     # scores only, from the saved answers
     python scripts/llm_pick_winner.py --rate       # variant: rate each headline alone, 1-10 (no order effect)
 
-Pairs: two versions of the same article that differ only by their headline (same image and excerpt),
-where one clearly beat the other: |z| > 2.58 even after inflating the noise by the factor measured on
-the A/A tests (results/effects.json). One pair per test, chosen deterministically, exploratory sample,
-same exclusions as elsewhere. The model sees both headlines (no numbers) and answers A or B; every pair
+Pairs: two versions of the same article that differ only by their headline (every other recorded field
+identical), where one clearly beat the other: |z| > 3.54 with the binomial formula (the threshold in
+force when the answers were collected, see docs/deviations.md). One pair per test, chosen
+deterministically, exploratory sample, same exclusions as elsewhere. The model sees both headlines (no numbers) and answers A or B; every pair
 is asked twice with the order swapped, so a model that always answers "A" scores exactly 50%.
 Baseline without any model: the published negativity effect (Robertson et al. 2023): predict the
 headline with more negative words, then fewer positive words, then more words.
@@ -28,9 +28,11 @@ from scipy.stats import chi2, norm
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from abtr.db import ROOT, figures_dir, open_sample, results_dir, sample_arg  # noqa: E402
+from abtr.effects import versions  # noqa: E402
 from abtr.sentiment import count, load_lexicon  # noqa: E402
 
 MODEL = "qwen3:8b"
+CLEAR_Z = 3.54   # a "clear winner": |z| above this, binomial noise
 OLLAMA = "http://localhost:11434/api/chat"
 PROMPT = """Two headlines were tested for the same article on a news website. Visitors were randomly shown one of them.
 Which headline got the higher click rate?
@@ -47,24 +49,23 @@ How likely are readers to click on it, from 1 (very unlikely) to 10 (very likely
 Answer with JSON only: {{"score": <number>}}"""
 
 
-def pairs(con, phi: float):
+def pairs(con):
     t = con.execute("select * from tests order by test_id").fetchdf()
     kept = set(t[~t.in_flagged_window & (chi2.sf(t.srm_chisq, t.n_packages - 1) >= 0.001)].test_id)
-    pk = con.execute("""select test_id, headline, image_id, excerpt, sum(impressions) n, sum(clicks) c
-                        from packages group by all order by all""").fetchdf()
+    pk = versions(con)
     pk = pk[pk.test_id.isin(kept) & (pk.c > 0)]
     out = []
     for tid, g in pk.groupby("test_id", sort=True):
         best = None
-        for _, grp in g.groupby(["image_id", "excerpt"], dropna=False, sort=True):
+        for _, grp in g.groupby(["image_id", "excerpt", "lede", "share_text", "square"], dropna=False, sort=True):
             rows = grp.drop_duplicates("headline").to_dict("records")
             for i in range(len(rows)):
                 for j in range(i + 1, len(rows)):
                     a, b = rows[i], rows[j]
                     d = np.log(a["c"] / a["n"]) - np.log(b["c"] / b["n"])
                     v = 1 / a["c"] - 1 / a["n"] + 1 / b["c"] - 1 / b["n"]
-                    z = abs(d) / np.sqrt(phi * v)
-                    if z > 2.58 and (best is None or z > best[0]):
+                    z = abs(d) / np.sqrt(v)
+                    if z > CLEAR_Z and (best is None or z > best[0]):
                         win, lose = (a, b) if d > 0 else (b, a)
                         best = (z, win["headline"], lose["headline"])
         if best:
@@ -115,8 +116,7 @@ def main() -> None:
     a = ap.parse_args()
     con = open_sample(sample)
     res_dir = results_dir(sample)
-    phi = json.loads((res_dir / "effects.json").read_text())["aa"]["noise_inflation_phi"]
-    ps = pairs(con, phi)
+    ps = pairs(con)
     if a.rate:
         return rate_mode(ps, a.scores, res_dir)
     path = res_dir / "llm_answers.jsonl"
@@ -124,19 +124,21 @@ def main() -> None:
     if path.exists():
         for line in path.read_text(encoding="utf-8").splitlines():
             r = json.loads(line)
-            done[(r["test_id"], r["order"])] = r
+            done[(r["test_id"], r["order"], r["winner"], r["loser"])] = r
+    key = lambda p, order: (p["test_id"], order, p["winner"], p["loser"])  # noqa: E731
     if not a.scores:
         t0 = time.time()
         with open(path, "a", encoding="utf-8") as f:
             for i, p in enumerate(ps):
                 for order in ("winner_first", "winner_second"):
-                    if (p["test_id"], order) in done:
+                    if key(p, order) in done:
                         continue
                     x, y = (p["winner"], p["loser"]) if order == "winner_first" else (p["loser"], p["winner"])
                     ans = ask(x, y)
                     r = {"test_id": p["test_id"], "order": order, "answer": ans,
-                         "correct": ans == ("A" if order == "winner_first" else "B")}
-                    done[(p["test_id"], order)] = r
+                         "correct": ans == ("A" if order == "winner_first" else "B"),
+                         "winner": p["winner"], "loser": p["loser"]}
+                    done[key(p, order)] = r
                     f.write(json.dumps(r) + "\n")
                     f.flush()
                 print(f"[{i + 1}/{len(ps)}] {p['test_id']} {time.time() - t0:.0f} s")
@@ -147,12 +149,11 @@ def main() -> None:
         return (neg, -pos, w)
     base = [score(p["winner"]) > score(p["loser"]) for p in ps]
     ties = [score(p["winner"]) == score(p["loser"]) for p in ps]
-    ans = [done[(p["test_id"], o)] for p in ps for o in ("winner_first", "winner_second") if (p["test_id"], o) in done]
+    ans = [done[key(p, o)] for p in ps for o in ("winner_first", "winner_second") if key(p, o) in done]
     k = sum(r["correct"] for r in ans)
-    both = [done[(p["test_id"], "winner_first")]["correct"] and done[(p["test_id"], "winner_second")]["correct"]
-            for p in ps if (p["test_id"], "winner_first") in done and (p["test_id"], "winner_second") in done]
-    consistent = [done[(p["test_id"], "winner_first")]["answer"] != done[(p["test_id"], "winner_second")]["answer"]
-                  for p in ps if (p["test_id"], "winner_first") in done and (p["test_id"], "winner_second") in done]
+    asked = [p for p in ps if key(p, "winner_first") in done and key(p, "winner_second") in done]
+    both = [done[key(p, "winner_first")]["correct"] and done[key(p, "winner_second")]["correct"] for p in asked]
+    consistent = [done[key(p, "winner_first")]["answer"] != done[key(p, "winner_second")]["answer"] for p in asked]
     res = {"model": MODEL, "pairs": len(ps), "answers": len(ans),
            "llm_accuracy": round(k / max(len(ans), 1), 4), "llm_ci95": wilson(k, len(ans)),
            "llm_unparsed": sum(r["answer"] == "?" for r in ans),

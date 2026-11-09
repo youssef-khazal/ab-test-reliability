@@ -2,7 +2,7 @@
 
     python scripts/analyze_effects.py
 
-1. Noise check on accidental A/A tests (same headline, image and excerpt): is the binomial noise model right?
+1. Noise check on accidental A/A tests (packages identical in every recorded field): is the binomial noise model right?
 2. Distribution of true lifts between two different versions of a test (empirical Bayes, NPMLE).
 3. How often a "significant" result points the wrong way or exaggerates, and how big tests must be.
 Every result is given under two noise models: binomial (what Upworthy's p-values assumed) and binomial
@@ -23,7 +23,8 @@ from scipy.stats import chi2, norm
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from abtr.db import ROOT, figures_dir, open_sample, results_dir, sample_arg  # noqa: E402
-from abtr.effects import aa_pairs, all_pairs, npmle, posterior_positive, summarize_g, tau_moments  # noqa: E402
+from abtr.effects import (ANOMALOUS_AA_TESTS, aa_pairs, all_pairs, npmle, posterior_positive,  # noqa: E402
+                          summarize_g, tau_moments, versions)
 
 RNG_SEED = 0
 Z = norm.ppf(0.975)
@@ -48,7 +49,10 @@ def main() -> None:
     aa = aa[aa.test_id.isin(set(tests.test_id))]
     d = np.log(aa.ca / aa.na) - np.log(aa.cb / aa.nb)
     v = 1 / aa.ca - 1 / aa.na + 1 / aa.cb - 1 / aa.nb
-    z = d / np.sqrt(v)
+    aa = aa.assign(z=d / np.sqrt(v))
+    phi_with_anomalous = float(aa.assign(z2=aa.z ** 2).groupby("test_id", sort=True).z2.mean().mean())
+    aa = aa[~aa.test_id.isin(ANOMALOUS_AA_TESTS)]
+    z = aa.z
     per_test = aa.assign(z2=z ** 2, sig=np.abs(z) > Z).groupby("test_id", sort=True)[["z2", "sig"]].mean()
     phi = float(per_test.z2.mean())            # every test counts once, all its A/A pairs averaged
     boot = [float(per_test.z2.values[rng.integers(0, len(per_test), len(per_test))].mean()) for _ in range(2000)]
@@ -56,11 +60,11 @@ def main() -> None:
                  "share_significant_5pct": round(float(np.mean(np.abs(z) > Z)), 4),
                  "share_significant_5pct_tests_weighted": round(float(per_test.sig.mean()), 4),
                  "noise_inflation_phi": round(phi, 3),
+                 "noise_inflation_phi_with_anomalous_test": round(phi_with_anomalous, 3),
                  "phi_ci95": [round(float(np.quantile(boot, 0.025)), 3), round(float(np.quantile(boot, 0.975)), 3)]}
 
-    # 2. distinct versions: merge identical headline+image+excerpt within a test; all pairs, each test counts once
-    pk = con.execute("""select test_id, headline, image_id, excerpt, sum(impressions) n, sum(clicks) c
-                        from packages group by all order by all""").fetchdf()
+    # 2. distinct versions: identical packages of a test are merged; all pairs, each test counts once
+    pk = versions(con)
     pk = pk[pk.test_id.isin(set(tests.test_id)) & (pk.c > 0)]
     pk["y"] = np.log(pk.c / pk.n)
     pk["v"] = 1 / pk.c - 1 / pk.n
@@ -99,7 +103,8 @@ def main() -> None:
         }
         # editors' picks (`winner`: the version used after the test) vs the best other version
     win = con.execute("""
-        with r as (select test_id, headline, image_id, excerpt, sum(impressions) n, sum(clicks) c, bool_or(winner) w
+        with r as (select test_id, headline, image_id, excerpt, lede, share_text, square,
+                          sum(impressions) n, sum(clicks) c, bool_or(winner) w
                    from packages group by all),
              s as (select *, row_number() over (partition by test_id order by w desc, c::double/n desc) rk from r)
         select a.test_id, a.n na, a.c ca, b.n nb, b.c cb, a.w from s a join s b on a.test_id=b.test_id and a.rk=1 and b.rk=2

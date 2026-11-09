@@ -33,7 +33,7 @@ from scipy.stats import chi2, norm
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from abtr.db import ROOT, figures_dir, open_sample, results_dir, sample_arg  # noqa: E402
-from abtr.effects import all_pairs, npmle  # noqa: E402
+from abtr.effects import all_pairs, npmle, versions  # noqa: E402
 
 SEED, N_SIM, LOOKS, ALPHA = 0, 40_000, 20, 0.05
 MSPRT_TAU2 = np.log(1.10) ** 2   # mixing variance: lifts of about 10% are expected
@@ -42,8 +42,7 @@ MSPRT_TAU2 = np.log(1.10) ** 2   # mixing variance: lifts of about 10% are expec
 def setup(con, phi):
     t = con.execute("select * from tests order by test_id").fetchdf()
     t = t[~t.in_flagged_window & (chi2.sf(t.srm_chisq, t.n_packages - 1) >= 0.001)]
-    pk = con.execute("""select test_id, headline, image_id, excerpt, sum(impressions) n, sum(clicks) c
-                        from packages group by all order by all""").fetchdf()
+    pk = versions(con)
     pk = pk[pk.test_id.isin(set(t.test_id)) & (pk.c > 0)]
     per_test = pk.groupby("test_id", sort=True).agg(n=("n", "median"), c=("c", "sum"), N=("n", "sum"))
     per_test["ctr"] = per_test.c / per_test.N
@@ -62,7 +61,7 @@ def simulate(per_test, grid, w, phi, world, rng):
     pa, pb = p0, np.minimum(p0 * np.exp(true), 0.5)
     batch = np.maximum((n_arm / LOOKS).astype(int), 1)
     # per-batch multiplicative noise so the final log-rate variance is phi times binomial
-    sig2 = LOOKS * (phi - 1) / np.maximum(batch * LOOKS * p0, 1)
+    sig2 = LOOKS * max(phi - 1, 0) / np.maximum(batch * LOOKS * p0, 1)
     ca = np.zeros(N_SIM); cb = np.zeros(N_SIM); n = np.zeros(N_SIM)
     z_path, v_path, est_path = [], [], []
     for _ in range(LOOKS):
