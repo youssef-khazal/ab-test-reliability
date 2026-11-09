@@ -1,0 +1,41 @@
+{
+ "sample": "confirmatory",
+ "dictionary": "VADER (|valence| >= 1), negation window 3",
+ "tests": 9828,
+ "headlines": 43650,
+ "mean_words": 14.86,
+ "share_headlines_with_negative_word": 0.43,
+ "share_headlines_with_positive_word": 0.506,
+ "neg_share": {
+  "beta_standardized": 0.0123,
+  "se": 0.0026,
+  "ci95": [
+   0.0072,
+   0.0174
+  ]
+ },
+ "pos_share": {
+  "beta_standardized": -0.0173,
+  "se": 0.0024,
+  "ci95": [
+   -0.022,
+   -0.0126
+  ]
+ },
+ "words": {
+  "beta_standardized": 0.0328,
+  "se": 0.0026,
+  "ci95": [
+   0.0276,
+   0.038
+  ]
+ },
+ "one_more_negative_word_ctr_change_pct": 1.59,
+ "one_more_positive_word_ctr_change_pct": -1.96,
+ "robertson_2023": {
+  "negative_beta": 0.015,
+  "positive_beta": -0.008,
+  "one_more_negative_word_pct": 2.3,
+  "one_more_positive_word_pct": -1.0
+ }
+}

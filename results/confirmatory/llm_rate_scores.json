@@ -1,0 +1,13 @@
+{
+ "model": "qwen3:8b",
+ "mode": "rate each headline 1-10",
+ "pairs": 2152,
+ "pairs_rated": 2152,
+ "accuracy_ties_as_half": 0.5609,
+ "ci95_without_ties": [
+  0.6602,
+  0.7298
+ ],
+ "ties": 1484,
+ "accuracy_without_ties": 0.6961
+}

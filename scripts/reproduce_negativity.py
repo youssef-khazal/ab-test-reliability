@@ -37,7 +37,8 @@ def main() -> None:
     kept = set(t[~t.in_flagged_window & (chi2.sf(t.srm_chisq, t.n_packages - 1) >= 0.001)].test_id)
     df = con.execute("""select test_id, headline, sum(impressions) n, sum(clicks) c
                         from packages group by all order by all""").fetchdf()
-    df = df[df.test_id.isin(kept) & (df.c > 0)].copy()
+    # versions with no headline text are skipped (deviation 1: one such version in the holdout sample)
+    df = df[df.test_id.isin(kept) & (df.c > 0) & df.headline.notna()].copy()
     lex = load_lexicon()
     counts = np.array([count(h, lex) for h in df.headline])
     df["words"], df["pos"], df["neg"] = counts[:, 0], counts[:, 1], counts[:, 2]
