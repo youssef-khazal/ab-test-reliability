@@ -1,0 +1,113 @@
+{
+ "sample": "holdout",
+ "tests_kept": 3803,
+ "pairs": 37576,
+ "groups": {
+  "identical_in_every_field": {
+   "tests": 32,
+   "pairs": 89,
+   "mean_z2": 1.056,
+   "mean_z2_ci95": [
+    0.73,
+    1.409
+   ],
+   "share_significant_5pct": 0.0135,
+   "share_significant_ci95": [
+    0.0,
+    0.0292
+   ],
+   "true_difference_sd": 0.0
+  },
+  "only_headline_differs": {
+   "tests": 1965,
+   "pairs": 16564,
+   "mean_z2": 3.565,
+   "mean_z2_ci95": [
+    3.39,
+    3.748
+   ],
+   "share_significant_5pct": 0.2778,
+   "share_significant_ci95": [
+    0.2656,
+    0.2889
+   ],
+   "true_difference_sd": 0.429
+  },
+  "only_image_differs": {
+   "tests": 984,
+   "pairs": 9601,
+   "mean_z2": 2.708,
+   "mean_z2_ci95": [
+    2.517,
+    2.935
+   ],
+   "share_significant_5pct": 0.2127,
+   "share_significant_ci95": [
+    0.1982,
+    0.2269
+   ],
+   "true_difference_sd": 0.348
+  },
+  "only_excerpt_differs": {
+   "tests": 340,
+   "pairs": 2178,
+   "mean_z2": 1.46,
+   "mean_z2_ci95": [
+    1.294,
+    1.65
+   ],
+   "share_significant_5pct": 0.0954,
+   "share_significant_ci95": [
+    0.0768,
+    0.1157
+   ],
+   "true_difference_sd": 0.115
+  },
+  "only_share_text_differs": {
+   "tests": 358,
+   "pairs": 3316,
+   "mean_z2": 1.773,
+   "mean_z2_ci95": [
+    1.614,
+    1.95
+   ],
+   "share_significant_5pct": 0.1461,
+   "share_significant_ci95": [
+    0.1256,
+    0.1689
+   ],
+   "true_difference_sd": 0.201
+  },
+  "only_square_differs": {
+   "tests": 2,
+   "pairs": 21,
+   "mean_z2": 1.445,
+   "mean_z2_ci95": [
+    0.882,
+    2.007
+   ],
+   "share_significant_5pct": 0.1,
+   "share_significant_ci95": [
+    0.0,
+    0.2
+   ],
+   "true_difference_sd": 0.155
+  },
+  "same_headline_image_excerpt_(first_definition)": {
+   "tests": 398,
+   "pairs": 3571,
+   "mean_z2": 1.741,
+   "mean_z2_ci95": [
+    1.593,
+    1.895
+   ],
+   "share_significant_5pct": 0.1392,
+   "share_significant_ci95": [
+    0.1195,
+    0.1599
+   ],
+   "true_difference_sd": 0.186
+  }
+ },
+ "first_definition_pairs_that_differ_in_share_text": 0.9647
+}

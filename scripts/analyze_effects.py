@@ -135,11 +135,11 @@ def main() -> None:
 
     # figures
     fig, ax = plt.subplots(figsize=(7, 3.6))
-    ax.hist(z, bins=np.linspace(-6, 6, 61), density=True, color="#5d6d7e", label="accidental A/A tests")
+    ax.hist(z, bins=np.linspace(-6, 6, 25), density=True, color="#5d6d7e", label="identical versions (A/A pairs)")
     xs = np.linspace(-6, 6, 400)
     ax.plot(xs, norm.pdf(xs), color="#c0392b", lw=2, label="what pure noise should look like")
     ax.set_xlabel("z-score of the difference between two identical versions")
-    ax.set_title(f"Identical versions differ more than chance allows: noise x{phi:.2f}")
+    ax.set_title(f"Identical versions: noise is x{phi:.2f} the standard formula")
     ax.legend(frameon=False)
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
@@ -150,7 +150,7 @@ def main() -> None:
         grid, w, _ = fits[label]
         lift = 100 * (np.exp(grid) - 1)
         ax.plot(lift, np.cumsum(w), color=color, lw=2,
-                label="noise as Upworthy assumed" if label == "binomial" else "noise as measured on A/A tests")
+                label="standard (binomial) noise" if label == "binomial" else "noise as measured on identical versions")
     ax.set_xlim(-60, 60)
     ax.set_xlabel("true click-rate lift of one version over another (%)")
     ax.set_ylabel("share of version pairs")

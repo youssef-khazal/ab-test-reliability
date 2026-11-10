@@ -1,17 +1,17 @@
 {
  "model": "qwen3:8b",
- "pairs": 508,
- "answers": 1016,
- "llm_accuracy": 0.5295,
+ "pairs": 432,
+ "answers": 864,
+ "llm_accuracy": 0.537,
  "llm_ci95": [
-  0.4988,
-  0.5601
+  0.5037,
+  0.57
  ],
  "llm_unparsed": 0,
- "llm_answered_A": 0.9272,
- "llm_same_headline_in_both_orders": 0.1457,
- "llm_right_in_both_orders": 0.1024,
- "baseline_accuracy_counting_ties_as_half": 0.5118,
- "baseline_ties": 18,
+ "llm_answered_A": 0.9236,
+ "llm_same_headline_in_both_orders": 0.1528,
+ "llm_right_in_both_orders": 0.1134,
+ "baseline_accuracy_counting_ties_as_half": 0.5312,
+ "baseline_ties": 19,
  "chance": 0.5
 }

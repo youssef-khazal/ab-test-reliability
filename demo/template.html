@@ -78,7 +78,7 @@ details { margin-top: 18px; } summary { cursor: pointer; font-weight: 600; }
 <div class="wrap">
   <span class="label">A/B test check · calibrated on 17,744 real tests</span>
   <h1>Is my winner real?</h1>
-  <p class="lead">Enter the views and clicks of your two versions. The page shows what a standard A/B tool would say, what it says once the noise is measured properly, how likely the new version is to be truly better, and how big its real gain probably is.</p>
+  <p class="lead">Enter the views and clicks of your two versions. The page shows what a standard A/B tool would say, how likely the new version is to be truly better once typical gains are taken into account, and how big its real gain probably is.</p>
 
   <div class="grid">
     <form class="card slip" id="form" novalidate>
@@ -116,8 +116,8 @@ details { margin-top: 18px; } summary { cursor: pointer; font-weight: 600; }
     <div class="card" aria-live="polite">
       <div class="verdicts">
         <div class="v" id="v1"><span class="label">A standard tool says</span><div class="big" id="std"></div><div class="sub" id="stdSub"></div></div>
-        <div class="v" id="v2"><span class="label">With the real noise</span><div class="big" id="cor"></div><div class="sub" id="corSub"></div></div>
         <div class="v" id="v3"><span class="label">B truly better</span><div class="big" id="prob"></div><div class="sub" id="probSub"></div></div>
+        <div class="v" id="v2"><span class="label">B better by at least <span id="tgt2"></span></span><div class="big" id="cor"></div><div class="sub" id="corSub"></div></div>
       </div>
 
       <div class="section">
@@ -136,8 +136,8 @@ details { margin-top: 18px; } summary { cursor: pointer; font-weight: 600; }
         <table>
           <tbody>
             <tr><td>Chance this test detects a real gain of <span id="tgt1"></span></td><td class="num" id="power"></td></tr>
-            <tr><td>Views needed per version for 80% chance (real noise)</td><td class="num" id="need"></td></tr>
-            <tr><td>Same, if the textbook noise were right</td><td class="num" id="needStd"></td></tr>
+            <tr><td>Views needed per version for an 80% chance</td><td class="num" id="need"></td></tr>
+            <tr><td>Views per version in your test</td><td class="num" id="have"></td></tr>
           </tbody>
         </table>
       </div>
@@ -147,9 +147,9 @@ details { margin-top: 18px; } summary { cursor: pointer; font-weight: 600; }
       <details>
         <summary>How this is computed</summary>
         <p><b>Standard tool:</b> z = difference of log click rates divided by its noise, √(1/clicks − 1/views) for each version; significant if |z| &gt; 1.96 (p &lt; 0.05).</p>
-        <p><b>Real noise:</b> in 1,905 Upworthy tests, versions that were identical before the click differed 1.88 times more (in variance) than the textbook formula allows (95% CI 1.73-2.10). The noise is multiplied by that factor.</p>
-        <p><b>B truly better, real gain:</b> empirical Bayes. The distribution of true differences between two versions was estimated from 157,570 version pairs (nonparametric maximum likelihood). Your measurement is combined with it to give the probability that B is better and the likely size of its gain.</p>
-        <p><b>Views needed:</b> (1.96 + 0.84)² × 1.88 × (1/p_A + 1/p_B) / log(1 + gain)², at A's click rate.</p>
+        <p><b>Is that noise formula right?</b> It was checked on 161 Upworthy tests that contained identical versions: a 5% test called 5.7% of them significant, and their differences were 1.14 times as spread as the formula says (95% CI 0.96-1.34). The standard formula is therefore used as is.</p>
+        <p><b>B truly better, real gain:</b> empirical Bayes. The distribution of true differences between two versions was estimated from 175,186 version pairs (nonparametric maximum likelihood). Your measurement is combined with it to give the probability that B is better and the likely size of its gain. Small tests are pulled strongly towards "no difference"; large tests hardly at all.</p>
+        <p><b>Views needed:</b> (1.96 + 0.84)² × (1/p_A + 1/p_B) / log(1 + gain)², at A's click rate.</p>
       </details>
     </div>
   </div>
@@ -160,8 +160,8 @@ details { margin-top: 18px; } summary { cursor: pointer; font-weight: 600; }
 <script>
 var PRIOR = /*PRIOR*/;
 (function () {
-  var Z = 1.959964, Z80 = 0.841621, phi = PRIOR.phi, grid = PRIOR.grid;
-  var wM = PRIOR.weights_measured, wB = PRIOR.weights_binomial;
+  var Z = 1.959964, Z80 = 0.841621, grid = PRIOR.grid;
+  var wB = PRIOR.weights_binomial;   // true differences estimated with the standard (binomial) noise
   var $ = function (id) { return document.getElementById(id); };
   function erf(x) { var s = x < 0 ? -1 : 1; x = Math.abs(x); var t = 1 / (1 + 0.3275911 * x);
     var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return s * y; }
@@ -218,20 +218,22 @@ var PRIOR = /*PRIOR*/;
     var a = Math.max(cA, 0.5), b = Math.max(cB, 0.5);
     var d = Math.log(b / nB) - Math.log(a / nA);
     var v = 1 / a - 1 / nA + 1 / b - 1 / nB, se = Math.sqrt(v);
-    var z = d / se, p = pTwo(z), zc = z / Math.sqrt(phi), pc = pTwo(zc);
-    var sig = p < 0.05, sigc = pc < 0.05;
+    var z = d / se, p = pTwo(z);
+    var sig = p < 0.05;
     $("std").textContent = sig ? (z > 0 ? "B wins" : "A wins") : "No winner";
     $("stdSub").textContent = "Measured " + pct(Math.exp(d) - 1) + ", " + fmtP(p);
     setV("v1", sig ? "good" : "");
-    $("cor").textContent = sigc ? (zc > 0 ? "B wins" : "A wins") : "No winner";
-    $("corSub").textContent = (sig && !sigc ? "Not significant any more, " : "") + fmtP(pc);
-    setV("v2", sigc ? "good" : (sig ? "warn" : ""));
-
-    var post = posterior(d, Math.sqrt(phi * v), wM), postB = posterior(d, se, wB);
-    var pr = 0, prB = 0; grid.forEach(function (g, i) { if (g > 0) { pr += post[i]; prB += postB[i]; } });
-    $("prob").textContent = pr > 0.995 ? "> 99%" : pr < 0.005 ? "< 1%" : Math.round(100 * pr) + "%";
-    $("probSub").textContent = (pr > 0.95 ? "Very likely. " : pr > 0.8 ? "Likely, not certain. " : pr > 0.6 ? "Barely better than a coin flip. " : pr >= 0.4 ? "A coin flip. " : "B is probably not better. ") + "Textbook noise would say " + Math.round(100 * prB) + "%.";
+    var delta = Math.log(1 + target);
+    var post = posterior(d, se, wB);
+    var pr = 0, prT = 0; grid.forEach(function (g, i) { if (g > 0) pr += post[i]; if (g >= delta - 1e-9) prT += post[i]; });
+    function fmtPr(x) { return x > 0.995 ? "> 99%" : x < 0.005 ? "< 1%" : Math.round(100 * x) + "%"; }
+    $("prob").textContent = fmtPr(pr);
+    $("probSub").textContent = pr > 0.95 ? "Very likely." : pr > 0.8 ? "Likely, not certain." : pr > 0.6 ? "More likely than not." : pr >= 0.4 ? "A coin flip." : "B is probably not better.";
     setV("v3", pr > 0.95 ? "good" : pr > 0.6 ? "warn" : "bad");
+    $("tgt2").textContent = "+" + Math.round(target * 100) + "%";
+    $("cor").textContent = fmtPr(prT);
+    $("corSub").textContent = "The gain you said is worth detecting.";
+    setV("v2", prT > 0.95 ? "good" : prT > 0.6 ? "warn" : "");
 
     var med = quant(post, 0.5), q10 = quant(post, 0.1), q90 = quant(post, 0.9);
     $("meas").textContent = pct(Math.exp(d) - 1);
@@ -239,24 +241,24 @@ var PRIOR = /*PRIOR*/;
     $("range").textContent = pct(Math.exp(q10) - 1) + " to " + pct(Math.exp(q90) - 1);
     draw(post, d);
 
-    var delta = Math.log(1 + target), p0 = Math.max(pA, 1e-6), p1 = p0 * (1 + target);
-    var seT = Math.sqrt(phi * (1 / (nA * p0) + 1 / (nB * p1)));
+    var p0 = Math.max(pA, 1e-6), p1 = p0 * (1 + target);
+    var seT = Math.sqrt(1 / (nA * p0) + 1 / (nB * p1));
     var power = (1 - Phi(Z - delta / seT)) + Phi(-Z - delta / seT);
     $("tgt1").textContent = "+" + Math.round(target * 100) + "%";
     $("power").textContent = Math.round(100 * power) + "%";
     var k = Math.pow(Z + Z80, 2) * (1 / p0 + 1 / p1) / (delta * delta);
-    $("need").textContent = fmtN(k * phi);
-    $("needStd").textContent = fmtN(k);
+    $("need").textContent = fmtN(k);
+    $("have").textContent = fmtN((nA + nB) / 2);
 
     var N = nA + nB, eB = N * share, eA = N - eB;
     var chi = Math.pow(nA - eA, 2) / eA + Math.pow(nB - eB, 2) / eB, pS = pTwo(Math.sqrt(chi));
     if (pS < 0.001) alerts.push(["bad", "The split looks broken", "You planned " + Math.round(share * 100) + "% for B but got " + (100 * nB / N).toFixed(1) + "% (" + fmtP(pS) + "). Unequal splits this large usually mean the random assignment failed, so the result cannot be trusted. In the Upworthy archive, 70% of tests from one broken period had this problem."]);
-    if (!$("fixed").checked) alerts.push(["bad", "Stopping early makes false winners more likely", "In a simulation of 40,000 tests, checking 20 times and stopping at the first p < 0.05 shipped a false winner 23% of the time, against 8% with one look at the end. Use a sequential test if you need to look often."]);
+    if (!$("fixed").checked) alerts.push(["bad", "Stopping early makes false winners more likely", "In a simulation of 40,000 tests, checking 20 times and stopping at the first p < 0.05 shipped a false winner 10.6% of the time, against 2.9% with one look at the end. Use a sequential test if you need to look often."]);
     if (!$("same").checked) alerts.push(["bad", "This is not an A/B test", "If A and B ran at different times or for different audiences, the difference can come from the time or the audience, not the version. None of the numbers above apply."]);
-    if (!$("content").checked) alerts.push(["warn", "Calibrated on headlines", "The real-noise factor and the typical gains come from 2013-2015 news headline tests. For other tests, read the probabilities as indicative and run A/A tests on your own platform to measure your noise."]);
+    if (!$("content").checked) alerts.push(["warn", "Calibrated on headlines", "The typical gains come from 2013-2015 news headline tests. For other tests, read the probabilities as indicative, and run A/A tests on your own platform to check that your noise matches the standard formula."]);
     if (Math.min(cA, cB) < 10) alerts.push(["warn", "Very few clicks", "With fewer than 10 clicks on a version, every estimate is rough."]);
-    if (sig && pr < 0.8) alerts.push(["warn", "Significant, but not convincing", "A standard tool would call this a win, yet with realistic noise and realistic gains B is better only " + Math.round(100 * pr) + "% of the time. Gains measured on small tests are usually exaggerated: here " + pct(Math.exp(d) - 1) + " measured, about " + pct(Math.exp(med) - 1) + " real."]);
-    if (power < 0.5 && !(sigc && pr > 0.95)) alerts.push(["warn", "The test is too small", "It had a " + Math.round(100 * power) + "% chance of detecting a real +" + Math.round(target * 100) + "% gain. Small tests mostly find lucky winners."]);
+    if (sig && pr < 0.8) alerts.push(["warn", "Significant, but not convincing", "A standard tool would call this a win, yet once typical gains are taken into account B is better only " + Math.round(100 * pr) + "% of the time. Gains measured on small tests are usually exaggerated: here " + pct(Math.exp(d) - 1) + " measured, about " + pct(Math.exp(med) - 1) + " real."]);
+    if (power < 0.5 && !(sig && pr > 0.95)) alerts.push(["warn", "The test is too small", "It had a " + Math.round(100 * power) + "% chance of detecting a real +" + Math.round(target * 100) + "% gain. Small tests mostly find lucky winners."]);
     if (!alerts.length) alerts.push(["good", "No warning signs", power >= 0.5
       ? "The split is as planned, the test is large enough for the gain you care about, and you followed the conditions above."
       : "The result is clear and the split is as planned. The test was too small to detect a gain of +" + Math.round(target * 100) + "% reliably, but the gain here is large enough to show."]);

@@ -1,13 +1,13 @@
 {
  "model": "qwen3:8b",
  "mode": "rate each headline 1-10",
- "pairs": 508,
- "pairs_rated": 508,
- "accuracy_ties_as_half": 0.5492,
+ "pairs": 432,
+ "pairs_rated": 432,
+ "accuracy_ties_as_half": 0.5532,
  "ci95_without_ties": [
-  0.5862,
-  0.7347
+  0.6017,
+  0.7639
  ],
- "ties": 356,
- "accuracy_without_ties": 0.6645
+ "ties": 310,
+ "accuracy_without_ties": 0.6885
 }

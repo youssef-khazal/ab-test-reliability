@@ -3,22 +3,26 @@
 How reliable are A/B test decisions? An analysis of real headline A/B tests from the
 [Upworthy Research Archive](https://upworthy.natematias.com/) (Cornell University, CC BY 4.0).
 
-**Finding:** in 22,743 real tests, the noise was about 1.9 times what the standard formula assumed, so
-about 1 in 5 "significant" winners was actually worse, gains were exaggerated about 4 times, and editors'
-final picks were barely better than a coin flip. All eight predictions were registered in git before the
-main data was opened, and all held. Full write-up: **[REPORT.md](REPORT.md)**.
+**Finding:** on versions that were truly identical, the standard noise formula held (noise x1.14, 95% CI
+0.96-1.34). The tests were simply too small: only 23% of comparisons between two versions reached
+significance, and the editors' final picks were truly better than the best alternative about 60% of the
+time. Eight predictions were registered in git before the main data was opened; five held, and three
+failed after an audit corrected the definition of "identical versions" (the first definition counted
+versions with different share texts as identical). Full write-up: **[REPORT.md](REPORT.md)**.
 
-![A/A noise](figures/confirmatory/aa_noise.png)
+![What changes clicks](figures/confirmatory/field_effects.png)
 
 | | Result (confirmatory sample) |
 |---|---|
-| Identical versions flagged "significant" at 5% | 14.7% (noise x1.88, 95% CI 1.73-2.10) |
-| Significant results pointing the wrong way | 20% |
-| Median exaggeration of significant gains | x4.3 |
-| Editors' picks truly better than the best alternative | 54% |
-| False winners when peeking (20 looks) vs one look | 23% vs 8% |
+| Identical versions flagged "significant" at 5% | 5.7% (noise x1.14, 95% CI 0.96-1.34) |
+| Versions differing only in share text flagged "significant" | 14.6% (documented as not shown in tests) |
+| Comparisons between two versions that reach significance | 23% |
+| Significant results pointing the wrong way | 5.7% |
+| Median exaggeration of significant gains | x1.5 |
+| Editors' picks truly better than the best alternative | 59% |
+| False winners when peeking (20 looks) vs one look | 10.6% vs 2.9% |
 | Clicks per extra negative / positive word | +1.6% / -2.0% (replicates Robertson et al., 2023) |
-| Local LLM (Qwen3-8B) picking the winner of a pair | 52.6% |
+| Local LLM (Qwen3-8B) picking the winner of a pair | 52.4% |
 
 ## Data
 
@@ -37,6 +41,7 @@ python scripts/reproduce_negativity.py  # replication of Robertson et al. (2023)
 python scripts/llm_pick_winner.py       # LLM experiment, needs Ollama with qwen3:8b (~25 min)
 python scripts/llm_pick_winner.py --rate
 python scripts/run_plan.py confirmatory # the frozen plan on the reserved sample
+python scripts/check_identical_versions.py   # post-hoc: noise on identical versions, effect of each field
 ```
 
 | folder | contents |
@@ -46,4 +51,4 @@ python scripts/run_plan.py confirmatory # the frozen plan on the reserved sample
 | `scripts/` | one script per question |
 | `results/`, `figures/` | outputs (exploratory); reserved samples in subfolders |
 | `demo/` | "Is my winner real?": a calculator built on these results (static page; `scripts/export_prior.py`, `scripts/build_demo.py`) |
-| `docs/analysis_plan.md`, `docs/deviations.md` | the pre-registered plan and the one deviation |
+| `docs/analysis_plan.md`, `docs/deviations.md` | the pre-registered plan and the two deviations |

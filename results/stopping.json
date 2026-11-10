@@ -1,69 +1,69 @@
 {
- "phi": 1.799,
+ "phi": 1.138,
  "simulated_tests": 40000,
  "looks": 20,
  "aa_world": {
   "ahead": {
-   "share_shipped": 0.4838,
+   "share_shipped": 0.4764,
    "shipped_but_worse": 0.0,
    "avg_true_lift_per_test_pct": 0.0,
    "avg_share_of_viewers_used": 1.0
   },
   "fixed": {
-   "share_shipped": 0.0773,
+   "share_shipped": 0.0301,
    "shipped_but_worse": 0.0,
    "avg_true_lift_per_test_pct": 0.0,
    "avg_share_of_viewers_used": 1.0
   },
   "peeking": {
-   "share_shipped": 0.2238,
+   "share_shipped": 0.1066,
    "shipped_but_worse": 0.0,
    "avg_true_lift_per_test_pct": 0.0,
-   "avg_share_of_viewers_used": 0.86
+   "avg_share_of_viewers_used": 0.939
   },
   "fixed_phi": {
-   "share_shipped": 0.0272,
+   "share_shipped": 0.0223,
    "shipped_but_worse": 0.0,
    "avg_true_lift_per_test_pct": 0.0,
    "avg_share_of_viewers_used": 1.0
   },
   "msprt": {
    "share_shipped": 0.0,
-   "shipped_but_worse": 0.0,
+   "shipped_but_worse": null,
    "avg_true_lift_per_test_pct": 0.0,
    "avg_share_of_viewers_used": 1.0
   }
  },
  "realistic_world": {
   "ahead": {
-   "share_shipped": 0.4893,
-   "shipped_but_worse": 0.3299,
-   "avg_true_lift_per_test_pct": 6.415,
+   "share_shipped": 0.4885,
+   "shipped_but_worse": 0.2495,
+   "avg_true_lift_per_test_pct": 10.533,
    "avg_share_of_viewers_used": 1.0
   },
   "fixed": {
-   "share_shipped": 0.1309,
-   "shipped_but_worse": 0.165,
-   "avg_true_lift_per_test_pct": 4.697,
+   "share_shipped": 0.1166,
+   "shipped_but_worse": 0.0382,
+   "avg_true_lift_per_test_pct": 7.056,
    "avg_share_of_viewers_used": 1.0
   },
   "peeking": {
-   "share_shipped": 0.2632,
-   "shipped_but_worse": 0.2732,
-   "avg_true_lift_per_test_pct": 5.414,
-   "avg_share_of_viewers_used": 0.834
+   "share_shipped": 0.1887,
+   "shipped_but_worse": 0.114,
+   "avg_true_lift_per_test_pct": 7.992,
+   "avg_share_of_viewers_used": 0.889
   },
   "fixed_phi": {
-   "share_shipped": 0.0713,
-   "shipped_but_worse": 0.0922,
-   "avg_true_lift_per_test_pct": 3.772,
+   "share_shipped": 0.1041,
+   "shipped_but_worse": 0.0293,
+   "avg_true_lift_per_test_pct": 6.721,
    "avg_share_of_viewers_used": 1.0
   },
   "msprt": {
-   "share_shipped": 0.0063,
+   "share_shipped": 0.0118,
    "shipped_but_worse": 0.0,
-   "avg_true_lift_per_test_pct": 0.631,
-   "avg_share_of_viewers_used": 0.998
+   "avg_true_lift_per_test_pct": 1.427,
+   "avg_share_of_viewers_used": 0.997
   }
  }
 }

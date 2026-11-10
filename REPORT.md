@@ -1,10 +1,12 @@
 # How reliable are A/B test decisions? Evidence from 22,743 real headline tests
 
-**In short:** in Upworthy's headline tests, the noise was about 1.9 times what the standard formula
-assumed. As a result, about 1 in 5 "significant" winners was actually the worse headline, measured gains
-were exaggerated about 4 times, and the editors' final picks were barely better than a coin flip. Checking
-results repeatedly makes this about three times worse. All eight predictions, registered before the main
-data was opened, held on the 22,743 confirmatory tests and on a further 4,871 holdout tests.
+**In short:** Upworthy's headline tests used the standard noise formula, and on versions that were truly
+identical the formula held (noise x1.14, 95% CI 0.96-1.34). The tests were simply too small: only 23% of
+comparisons between two versions reached significance, the editors' final pick was truly better than the
+best alternative about 60% of the time, and significant gains were exaggerated about 1.5 times. Checking
+results repeatedly more than triples the false winners. Eight predictions were registered before the main
+data was opened. Five held. Three did not: they rested on a definition of "identical versions" that an
+audit of this project showed to be wrong, and they fail once it is corrected ([Deviations](#deviations)).
 
 Numbers below are from the **confirmatory sample** unless stated; holdout values in brackets.
 
@@ -16,20 +18,21 @@ Numbers below are from the **confirmatory sample** unless stated; holdout values
 - **Discipline:** all code was written on the exploratory sample (4,873 tests). The analysis plan, with
   eight predictions, was then committed to git ([docs/analysis_plan.md](docs/analysis_plan.md), commit
   `d7e380a`) before the confirmatory and holdout samples were opened, and run once on each.
-  One deviation was needed ([docs/deviations.md](docs/deviations.md)): one holdout version had no headline.
+  Two deviations followed, both reported in [docs/deviations.md](docs/deviations.md) with results before
+  and after: one holdout version had no headline, and the definition of identical versions was corrected.
 - **Tools:** SQL (DuckDB) for all loading and counting; Python (NumPy, SciPy, statsmodels) for the
   statistics and simulations; Qwen3-8B through Ollama for the LLM experiment.
 
-| Prediction (plan) | Result | Held? |
-|---|---|---|
-| H0 Randomization problem visible in 2013 | 70% of tests with an unequal split in the flagged period vs 0.5% outside | Yes |
-| H1 Noise larger than binomial | x1.88 (95% CI 1.73-2.10) [x1.74] | Yes |
-| H2 Typical true difference below 10% | 6% [7%] | Yes |
-| H3 Significant results often wrong or exaggerated | 20% wrong direction, exaggerated x4.3 [17%, x2.8] | Yes |
-| H4 Editors' picks below 70% reliable | 54% [56%] | Yes |
-| H5 Peeking at least doubles false winners | 23% vs 8% [21% vs 7%] | Yes |
-| H6 Negative words raise clicks, positive words lower them | +1.6% and -2.0% per word [+0.7% n.s., -2.1%] | Yes |
-| H7 LLM near chance on pairs, better when rating alone | 52.6% on pairs; 70% when rating, pairs without ties | Yes |
+| Prediction (plan) | As registered | Corrected | Held? |
+|---|---|---|---|
+| H0 Randomization problem visible in 2013 | 70% of tests with an unequal split in the flagged period vs 0.5% outside | same | Yes |
+| H1 Noise larger than binomial | x1.88 (CI 1.73-2.10) | x1.14 (CI 0.96-1.34) [x1.06] | **No** |
+| H2 Typical true difference below 10% | 6% | 13% [13%] | **No** |
+| H3 Significant results often wrong (above 10%) and exaggerated (above x2) | 20%, x4.3 | 5.7%, x1.5 [4.5%, x1.4] | **No** |
+| H4 Editors' picks below 70% reliable | 54% | 59% [61%] | Yes |
+| H5 Peeking at least doubles false winners | 23% vs 8% | 10.6% vs 2.9% [9.1% vs 2.5%] | Yes |
+| H6 Negative words raise clicks, positive words lower them | +1.6% and -2.0% per word [+0.7% n.s., -2.1%] | same | Yes |
+| H7 LLM near chance on pairs, better when rating alone | 52.6% on pairs; 70% when rating | 52.4%; 70% | Yes |
 
 ## 0. Some tests were not properly randomized
 
@@ -41,41 +44,63 @@ June 2013 and January 2014 have one, against **0.5%** outside that period: we re
 alone, the problem the archive authors reported in 2024. These 4,907 tests and all other SRM tests are
 excluded; **17,744 tests remain**.
 
-## 1. The noise is almost twice what Upworthy assumed
+## 1. The standard noise formula holds, and share text is not neutral
+
+![What changes clicks](figures/confirmatory/field_effects.png)
+
+A/B testing tools compute their p-values with the binomial formula. To check it, we use accidental
+**A/A tests**: packages of the same test that are identical in every recorded field (headline, image,
+excerpt, lede, share text, square), where any difference in clicks is pure chance.
+
+| The only thing that differs between two versions | Tests | Pairs called significant at 5% | Spread vs the binomial formula |
+|---|---|---|---|
+| Nothing (identical) | 161 | **5.7%** (CI 3.2-8.6) | **x1.14** (CI 0.96-1.34) |
+| Lede (first sentence of the article) | 39 | 8.0% (CI 1.7-15.7) | x1.13 |
+| Excerpt | 1,758 | 11.6% | x1.60 |
+| Share text | 1,690 | 14.6% | x1.84 |
+| Image | 4,521 | 22.2% | x2.78 |
+| Headline | 9,066 | 27.8% | x3.50 |
+
+- **Identical versions behave as chance predicts:** 5.7% are called significant where 5% is expected, and
+  the spread of their differences is 1.14 times the formula's, an interval that includes 1 (holdout: 1.06,
+  CI 0.73-1.41). With 161 tests a small excess, up to about a third, cannot be ruled out.
+- **Share text changes clicks.** The archive's documentation says share text "was not shown in tests".
+  Yet versions that differ only in their share text differ far more than identical ones (14.6% significant
+  on 1,690 tests). In the 2014-2015 tests that vary it, share text behaves as something viewers saw.
+- **The correction.** The registered plan treated versions with the same headline, image and excerpt as
+  identical. 95% of those pairs differ in share text, so the plan's "noise x1.88" measured real
+  differences between share texts. See [Deviations](#deviations).
 
 ![A/A noise](figures/confirmatory/aa_noise.png)
 
-In 1,905 tests, some versions were identical before the click (same headline, image and excerpt): accidental
-**A/A tests**, where any difference is pure chance. A 5% significance test should flag 5% of them; it flags
-**14.7%**. The spread of their differences is **1.88 times** the binomial formula's (95% CI 1.73-2.10;
-holdout 1.74). P-values computed the standard way on this platform were therefore too optimistic.
-This check is, as far as we found, not reported elsewhere.
-
-## 2. Real differences between headlines are modest
+## 2. Real differences between versions are often large, but not always
 
 ![True lifts](figures/confirmatory/true_lifts.png)
 
-Removing the noise (empirical Bayes: nonparametric maximum likelihood over 157,570 version pairs in 16,363
-tests, each test weighted once) gives the distribution of **true** click-rate differences between two versions of an article.
-With the measured noise, the typical (median) true difference is **6%**; 37% of pairs differ by less than
-5%. The standard formula would suggest 15%. A minority of versions differ a lot (20% of pairs by more than 20%).
+Removing the noise (empirical Bayes: nonparametric maximum likelihood over 175,186 version pairs in 17,680
+tests, each test weighted once) gives the distribution of **true** click-rate differences between two
+versions of an article. The typical (median) true difference is **13%** with the measured noise (15% with
+the binomial formula). About 21% of pairs differ by less than 5%, and 39% by more than 20%.
 
-## 3. "Significant" does not mean right
+## 3. "Significant" is mostly right, but most tests cannot tell
 
 Simulating tests with the real test sizes and true differences drawn from section 2:
 
-| Noise model | Significant results in the wrong direction | Median exaggeration of significant gains |
-|---|---|---|
-| Standard (binomial) | 3.5% | x1.4 |
-| Measured on A/A tests | **20%** | **x4.3** |
+| Noise model | Comparisons reaching significance | Significant results in the wrong direction | Median exaggeration of significant gains |
+|---|---|---|---|
+| Standard (binomial) | 23% | 3.5% | x1.4 |
+| Measured on identical versions (x1.14) | 23% | **5.7%** | **x1.5** |
+
+A significant result is rarely backwards, but it is the exception: three comparisons in four do not reach
+significance. Shipping whichever version is ahead, without a test, picks the wrong one **28%** of the time.
 
 **The editors' picks.** Upworthy's `winner` field records the version editors kept. Given the data, the
-chance that it truly beat the best other version averages **54%** (61% with the standard formula), and for
-96% of picks it is below 80%.
+chance that it truly beat the best other version averages **59%** (60% with the binomial formula), and for
+84% of picks it is below 80%.
 
 **Test size.** A typical version was shown to about **3,100** people. Detecting a 5% improvement with 80%
-power needs about **1.07 million** per version with the measured noise (570,000 with the standard
-formula); a 20% improvement needs about 76,500.
+power needs about **650,000** per version (570,000 with the binomial formula); a 20% improvement needs
+about 46,000.
 
 ## 4. What stopping early costs
 
@@ -86,16 +111,16 @@ the current A only when a rule says so.
 
 | Rule | No real difference: false winners | Realistic: shipped winners that are worse | Realistic: average real gain per test |
 |---|---|---|---|
-| No test, ship B if ahead | 48% | 34% | **6.3%** |
-| Standard test, one look | 8.3% | 17% | 4.8% |
-| Peeking: 20 looks, stop at p < 0.05 | **23%** | 28% | 5.5% |
-| One look, noise corrected | **2.7%** | 10% | 3.8% |
-| Sequential test (mixture SPRT), corrected | 0% | 0% | 0.5% |
+| No test, ship B if ahead | 48% | 25% | **11.1%** |
+| Standard test, one look | 2.9% | 3.9% | 7.6% |
+| Peeking: 20 looks, stop at p < 0.05 | **10.6%** | 12% | 8.5% |
+| One look, noise corrected (x1.14) | 2.2% | 2.9% | 7.2% |
+| Sequential test (mixture SPRT), corrected | 0% | 0% | 1.6% |
 
-The expected false-winner rate is 2.5% (one-sided). Peeking nearly triples false winners; correcting the
-noise restores the intended error rate. **But strict control is not free:** the bolder the rule, the higher
-the average gain, because headline mistakes are small and reversible. With tests this small, the
-sequential test almost never concludes. The right rule depends on what a wrong decision costs.
+The expected false-winner rate is 2.5% (one-sided). Peeking more than triples it [holdout: 9.1% vs 2.5%].
+**But strict control is not free:** the bolder the rule, the higher the average gain, because headline
+mistakes are small and reversible. With tests this small, the sequential test almost never concludes.
+The right rule depends on what a wrong decision costs.
 
 ## 5. What makes a headline win, and can an LLM tell?
 
@@ -105,22 +130,37 @@ within-test regression gives **+1.6%** clicks per extra negative word and **-2.0
 Behaviour*) report +2.3% and -1.0% on the same sample, with their own filters. Holdout: -2.1% for positive words; +0.7% for
 negative words, same direction but not significant.
 
-**LLM.** On 2,152 pairs with a clear winner, Qwen3-8B (local, no reasoning) was asked which headline got
-more clicks, with both orders tried:
+**LLM.** On 2,044 pairs of headlines for the same article, identical in every other field and with a
+clear winner (|z| > 3.54), Qwen3-8B (local, no reasoning) was asked which headline got more clicks, with
+both orders tried:
 
-- comparing the pair: **52.6%** correct (95% CI 51.1-54.1%), because it answered "A" 93% of the time;
-- rating each headline alone (1-10): 69% of pairs tied (it gave most headlines an 8), but on the other 668
-  pairs it picked the winner **70%** of the time (66-73%). Counting ties as half: 56%.
+- comparing the pair: **52.4%** correct (95% CI 50.9-54.0%), because it answered "A" 93% of the time;
+- rating each headline alone (1-10): 69% of pairs tied (it gave most headlines an 8), but on the other 637
+  pairs it picked the winner **70%** of the time (67-74%). Counting ties as half: 56%.
 
 A small local model has some sense of clickability, hidden by position bias and a compressed scale. It
 does not replace a test. Larger models were not tested.
+
+## Deviations
+
+Full detail, with every number before and after: [docs/deviations.md](docs/deviations.md).
+
+1. **A version with no headline** crashed the last step on the holdout sample; such versions are skipped.
+2. **Identical versions.** Before publication the project was audited. The registered noise check used
+   pairs with the same headline, image and excerpt. Nearly all of them differ in share text, which turned
+   out to change clicks, so the check measured real differences. With pairs identical in every field, the
+   noise factor falls from 1.88 to 1.14 and predictions H1 to H3 no longer hold. The first definition gave
+   the same wrong answer on all three samples: confirming a result on fresh data protects against chance,
+   not against a measure that does not measure what it should.
 
 ## Limits
 
 - The data are 2013-2015 news headlines; effect sizes in e-commerce or apps differ.
 - Stopping early is simulated: the archive has final totals only.
-- The extra noise is measured on versions identical before the click; we assume it applies to all tests.
-  Its cause is not identified (possibly visitors being assigned in clusters rather than one by one).
+- The noise check rests on 161 tests with identical versions (227 across the three samples). It is
+  consistent with the binomial formula, but an excess of up to about a third cannot be excluded.
+- That share text was visible in the tests that vary it is inferred from the click data; the archive's
+  documentation says otherwise, and we could not check how those tests were displayed.
 - The `winner` field is an editorial choice, not always the test's statistical winner.
 
 ## Reproduce
