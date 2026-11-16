@@ -136,7 +136,7 @@ details { margin-top: 18px; } summary { cursor: pointer; font-weight: 600; }
           <div><span class="label">Most likely real</span><div class="n" id="real"></div></div>
           <div><span class="label">80% range</span><div class="n" id="range"></div></div>
         </div>
-        <div class="chartbox"><svg id="post" viewBox="0 0 640 170" style="width:100%;height:auto;display:block" role="img" aria-label="Probability of each possible real gain"></svg></div>
+        <div class="chartbox"><svg id="post" viewBox="0 0 640 188" style="width:100%;height:auto;display:block" role="img" aria-label="Probability of each possible real gain"></svg></div>
         <p class="sub" style="margin:4px 0 0;color:var(--muted);font-size:13px">Bars: how likely each real gain is, given your numbers and what real gains looked like across 17,744 tests. Dashed line: what you measured.</p>
       </div>
 
@@ -188,7 +188,7 @@ var PRIOR = {"source": "Upworthy Research Archive, confirmatory sample (17,744 t
   function setV(id, cls) { var el = $(id); el.style.background = cls ? "var(--" + cls + "-soft)" : ""; }
 
   function draw(post, d) {
-    var svg = $("post"), W = 640, H = 170, x0 = 34, x1 = 626, top = 10, base = 140;
+    var svg = $("post"), W = 640, H = 188, x0 = 34, x1 = 606, top = 10, base = 140;
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     var NS = "http://www.w3.org/2000/svg";
     function el(n, a, t) { var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]); if (t != null) e.textContent = t; return e; }
@@ -210,7 +210,7 @@ var PRIOR = {"source": "Upworthy Research Archive, confirmatory sample (17,744 t
     svg.appendChild(el("line", { x1: X(dc), x2: X(dc), y1: top, y2: base, stroke: "var(--ink)", "stroke-width": 1.5, "stroke-dasharray": "4 3" }));
     var right = X(dc) > (x0 + x1) / 2;
     svg.appendChild(el("text", { x: right ? X(dc) - 5 : X(dc) + 5, y: top + 10, "text-anchor": right ? "end" : "start", "font-size": 14, fill: "var(--ink)" }, "measured " + pct(Math.exp(d) - 1)));
-    svg.appendChild(el("text", { x: x0, y: H - 2, "font-size": 14, fill: "var(--muted)" }, "real gain of B over A"));
+    svg.appendChild(el("text", { x: (x0 + x1) / 2, y: H - 4, "text-anchor": "middle", "font-size": 14, fill: "var(--muted)" }, "real gain of B over A"));
   }
 
   function run() {

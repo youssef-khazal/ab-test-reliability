@@ -44,7 +44,7 @@ Changes made after the reserved samples were opened, as required by section 5 of
 |---|---|---|
 | Identical pairs / tests | 16,350 / 1,905 | 495 / 161 [89 / 32] |
 | Noise factor (H1) | 1.88, CI 1.73-2.10 [1.74] | 1.14, CI 0.96-1.34 [1.06, CI 0.73-1.41]; 2.21 with the anomalous test |
-| Identical pairs significant at 5% | 14.7% | 5.7% [1.4%] |
+| Identical pairs significant at 5% (each test counted once) | 14.0% | 5.7% [1.4%] |
 | Median true difference, measured noise (H2) | 6% [7%] | 13% [13%] |
 | Significant results in the wrong direction (H3) | 20% [17%] | 5.7% [4.5%] |
 | Median exaggeration of significant gains (H3) | x4.3 [x2.8] | x1.5 [x1.4] |

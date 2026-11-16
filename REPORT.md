@@ -52,7 +52,7 @@ A/B testing tools compute their p-values with the binomial formula. To check it,
 **A/A tests**: packages of the same test that are identical in every recorded field (headline, image,
 excerpt, lede, share text, square), where any difference in clicks is pure chance.
 
-| The only thing that differs between two versions | Tests | Pairs called significant at 5% | Spread vs the binomial formula |
+| The only thing that differs between two versions | Tests | Pairs called significant at 5% (each test counted once) | Spread vs the binomial formula |
 |---|---|---|---|
 | Nothing (identical) | 161 | **5.7%** (CI 3.2-8.6) | **x1.14** (CI 0.96-1.34) |
 | Lede (first sentence of the article) | 39 | 8.0% (CI 1.7-15.7) | x1.13 |

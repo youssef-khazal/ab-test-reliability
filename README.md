@@ -24,6 +24,14 @@ versions with different share texts as identical). Full write-up: **[REPORT.md](
 | Clicks per extra negative / positive word | +1.6% / -2.0% (replicates Robertson et al., 2023) |
 | Local LLM (Qwen3-8B) picking the winner of a pair | 52.4% |
 
+## Demo: "Is my winner real?"
+
+[![The calculator](figures/demo.png)](demo/)
+
+Enter the views and clicks of two versions: the page gives the standard verdict, the probability that the
+new version is truly better once typical gains are taken into account, and how big its real gain
+probably is. It is a single static page (`demo/index.html`, no install, no server): open it in a browser.
+
 ## Data
 
 Download the CSV files from [osf.io/jd64p](https://osf.io/jd64p/) (folder `upworthy-archive-datasets`)
@@ -44,6 +52,10 @@ python scripts/run_plan.py confirmatory # the frozen plan on the reserved sample
 python scripts/check_identical_versions.py   # post-hoc: noise on identical versions, effect of each field
 ```
 
+Random seed 0 everywhere. Re-running the four analysis steps on all three samples on another machine
+(Linux, Python 3.13, DuckDB 2.0, pandas 3.0, NumPy 2.5, SciPy 1.18, statsmodels 0.15) gives result
+files identical to those in `results/`. The LLM experiment was not re-run (it needs a GPU).
+
 | folder | contents |
 |---|---|
 | `sql/` | DuckDB queries: one row per version, one row per test |
@@ -52,3 +64,9 @@ python scripts/check_identical_versions.py   # post-hoc: noise on identical vers
 | `results/`, `figures/` | outputs (exploratory); reserved samples in subfolders |
 | `demo/` | "Is my winner real?": a calculator built on these results (static page; `scripts/export_prior.py`, `scripts/build_demo.py`) |
 | `docs/analysis_plan.md`, `docs/deviations.md` | the pre-registered plan and the two deviations |
+
+## Licence
+
+Code: MIT ([LICENSE](LICENSE)). Data: the Upworthy Research Archive (Matias et al., 2021), CC BY 4.0, not
+included in this repository. `results/` contains headlines and values derived from it, and `demo/prior.json`
+values estimated from it; both are shared under the same licence with credit to its authors.
