@@ -26,11 +26,12 @@ versions with different share texts as identical). Full write-up: **[REPORT.md](
 
 ## Demo: "Is my winner real?"
 
-[![The calculator](figures/demo.png)](demo/)
+[![The calculator](figures/demo.png)](https://huggingface.co/spaces/youssef-khazal/is-my-winner-real)
 
 Enter the views and clicks of two versions: the page gives the standard verdict, the probability that the
 new version is truly better once typical gains are taken into account, and how big its real gain
-probably is. It is a single static page (`demo/index.html`, no install, no server): open it in a browser.
+probably is. **Try it online: [huggingface.co/spaces/youssef-khazal/is-my-winner-real](https://huggingface.co/spaces/youssef-khazal/is-my-winner-real)**,
+or open `demo/index.html` in a browser (a single static page, no install, no server).
 
 ## Data
 

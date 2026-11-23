@@ -5,6 +5,8 @@ colorFrom: indigo
 colorTo: gray
 sdk: static
 pinned: false
+license: mit
+short_description: Is my A/B test winner real? Calibrated on 17,744 tests
 ---
 
 # Is my winner real?
